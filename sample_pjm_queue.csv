@@ -1,0 +1,14 @@
+Project Name,Owner,State,County,City,MW Capacity,Status,In Service Date,Queue Position,Interconnection Type
+Digital Realty Virginia Campus,Digital Realty Trust Inc,Virginia,Loudoun,Ashburn,400,Operational,2025-02-01,1234,Load
+Equinix DC15 Expansion,Equinix Inc,Virginia,Loudoun,Ashburn,180,Under Construction,2026-04-15,1456,Load
+CoreSite Northern Virginia,CoreSite Realty,Virginia,Fairfax,Reston,150,Planned,2026-11-01,1478,Load
+AWS Northern VA Region Expansion,Amazon Web Services,Virginia,Loudoun,Sterling,350,Under Construction,2026-08-15,1467,Load
+Microsoft Azure East Coast Hub,Microsoft Corporation,Pennsylvania,Chester,Malvern,280,Planned,2027-01-15,1501,Load
+Aligned Data Centers - Chicago,Aligned Data Centers,Illinois,Cook,Chicago,200,Under Construction,2026-07-01,1488,Load
+Iron Mountain Data Centers - Pittsburgh,Iron Mountain Inc,Pennsylvania,Allegheny,Pittsburgh,90,Operational,2025-05-20,1398,Load
+Meta Maryland HPC Cluster,Meta Platforms Inc,Maryland,Montgomery,Clarksburg,320,Planned,2027-03-01,1512,Load
+Oracle Cloud Columbus,Oracle Corporation,Ohio,Franklin,Columbus,240,Under Construction,2026-10-15,1495,Load
+Bitcoin Mining NJ,Crypto Power Inc,New Jersey,Bergen,Jersey City,95,Proposed,2027-05-01,1523,Load
+Offshore Wind Project,Atlantic Wind LLC,New Jersey,Atlantic,Atlantic City,800,Planned,2027-06-01,1516,Generation
+Solar Park Maryland,Clean Energy Corp,Maryland,Prince George's,Bowie,300,Under Construction,2026-09-15,1482,Generation
+Steel Mill Modernization,US Steel,Pennsylvania,Allegheny,Pittsburgh,120,Planned,2026-12-01,1499,Load

@@ -1,0 +1,15 @@
+Project Name,Entity,County,City,Capacity (MW),Status,Proposed COD,Queue ID,Type
+Meta Austin Data Center,Meta Platforms Inc,Travis,Austin,250,Under Construction,2026-06-15,LRQ24-001,Large Load
+AWS Houston HPC Facility,Amazon Web Services,Harris,Houston,180,Planned,2026-12-01,LRQ24-003,Large Load
+Google Cloud Dallas,Google LLC,Dallas,Dallas,200,Operational,2025-03-20,LRQ23-015,Large Load
+Microsoft Azure San Antonio,Microsoft Corporation,Bexar,San Antonio,150,Under Construction,2026-09-01,LRQ24-008,Large Load
+Crypto Mining Farm Alpha,BitMine Texas LLC,Midland,Midland,100,Operational,2025-01-10,LRQ23-022,Large Load
+EdgeConneX Fort Worth Edge Data Center,EdgeConneX Inc,Tarrant,Fort Worth,75,Planned,2027-03-15,LRQ24-012,Large Load
+QTS Dallas Hyperscale Campus,QTS Realty Trust,Dallas,Dallas,300,Operational,2024-11-01,LRQ23-005,Large Load
+CyrusOne Richardson Colocation,CyrusOne Inc,Dallas,Richardson,120,Under Construction,2026-08-01,LRQ24-006,Large Load
+Switch Austin Prime,Switch Ltd,Travis,Austin,200,Planned,2027-01-15,LRQ24-015,Large Load
+AI Training Facility - Houston,NVIDIA Corporation,Harris,Houston,220,Planned,2027-06-01,LRQ24-018,Large Load
+West Texas Solar Farm,Renewable Energy Corp,Pecos,Fort Stockton,500,Planned,2026-11-01,GRQ24-045,Generation - Solar
+Gulf Coast Wind Project,Wind Power LLC,Cameron,Brownsville,350,Under Construction,2026-05-15,GRQ24-032,Generation - Wind
+Chemical Plant Expansion,Dow Chemical,Brazoria,Freeport,85,Planned,2026-10-01,LRQ24-020,Large Load - Industrial
+Natural Gas Peaker Plant,Calpine Corp,Harris,Houston,150,Planned,2027-02-01,GRQ24-055,Generation - Gas

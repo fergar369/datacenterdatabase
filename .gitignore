@@ -1,0 +1,31 @@
+# Generated database and outputs
+datacenter_intelligence.db
+datacenter_map.html
+summary_report.csv
+statistics_summary.txt
+database_creation.log
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
