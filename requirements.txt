@@ -1,0 +1,26 @@
+# Data Center Intelligence Database - Dependencies
+
+# Core data processing
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Web scraping
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+lxml>=4.9.0
+openpyxl>=3.1.0  # For Excel files
+PyPDF2>=3.0.0    # For PDF parsing
+
+# Database
+sqlite3  # Built-in with Python
+
+# Geocoding
+geopy>=2.4.0
+
+# Visualization
+folium>=0.15.0
+plotly>=5.18.0
+
+# Utilities
+python-dateutil>=2.8.2
+tqdm>=4.66.0  # Progress bars
