@@ -24,10 +24,10 @@ import threading
 import time
 
 # Import existing modules
-from database import Database
+from database import DataCenterDB
 from scraper_ercot import ERCOTScraper
 from scraper_pjm import PJMScraper
-from filters import DataCenterFilter
+import filters
 from geocoding import Geocoder
 from reports import ReportGenerator
 
@@ -37,7 +37,7 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-i
 app.config['DATABASE_PATH'] = 'datacenter_intelligence.db'
 
 # Global database instance
-db = Database(app.config['DATABASE_PATH'])
+db = DataCenterDB(app.config['DATABASE_PATH'])
 
 # Auto-update configuration
 AUTO_UPDATE_INTERVAL_HOURS = 6
@@ -554,7 +554,7 @@ def run_data_update() -> Dict:
     }
 
     geocoder = Geocoder()
-    dc_filter = DataCenterFilter()
+    # No need to instantiate filter class
 
     # Update ERCOT data
     try:
@@ -562,12 +562,12 @@ def run_data_update() -> Dict:
         ercot_projects = ercot_scraper.scrape()
 
         # Filter for data centers
-        dc_projects = [p for p in ercot_projects if dc_filter.is_datacenter(p)]
+        dc_projects = [p for p in ercot_projects if filters.is_data_center_project(p)[0]]
 
         # Geocode and save
         for project in dc_projects:
             geocoder.geocode_project(project)
-            db.add_facility(project)
+            db.insert_facility(project)
 
         results['ercot'] = {
             'success': True,
@@ -583,12 +583,12 @@ def run_data_update() -> Dict:
         pjm_projects = pjm_scraper.scrape()
 
         # Filter for data centers
-        dc_projects = [p for p in pjm_projects if dc_filter.is_datacenter(p)]
+        dc_projects = [p for p in pjm_projects if filters.is_data_center_project(p)[0]]
 
         # Geocode and save
         for project in dc_projects:
             geocoder.geocode_project(project)
-            db.add_facility(project)
+            db.insert_facility(project)
 
         results['pjm'] = {
             'success': True,
@@ -634,7 +634,8 @@ def start_background_tasks():
 if __name__ == '__main__':
     # Initialize database
     print("Initializing database...")
-    db.initialize()
+    db.connect()
+    db.create_tables()
 
     # Run initial update
     print("Running initial data update...")
