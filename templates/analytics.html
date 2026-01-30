@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics - DataCenter Intelligence{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="fas fa-chart-line"></i> Analytics & Trends
+            </h2>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    Capacity by Status
+                </div>
+                <div class="card-body">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    Capacity by State
+                </div>
+                <div class="card-body">
+                    <canvas id="stateChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    Projects by Source
+                </div>
+                <div class="card-body">
+                    <canvas id="sourceChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    Top 10 Operators by Capacity
+                </div>
+                <div class="card-body">
+                    <canvas id="operatorChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Fetch statistics
+    fetch('/api/statistics')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                createStatusChart(data.statistics.by_status);
+                createStateChart(data.statistics.by_state);
+                createSourceChart(data.statistics.by_source);
+            }
+        });
+
+    // Fetch operators
+    fetch('/api/operators')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                createOperatorChart(data.operators.slice(0, 10));
+            }
+        });
+});
+
+function createStatusChart(data) {
+    const ctx = document.getElementById('statusChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: data.map(d => d.status),
+            datasets: [{
+                label: 'Capacity (MW)',
+                data: data.map(d => d.capacity),
+                backgroundColor: [
+                    'rgba(40, 167, 69, 0.7)',
+                    'rgba(255, 193, 7, 0.7)',
+                    'rgba(0, 123, 255, 0.7)',
+                    'rgba(108, 117, 125, 0.7)'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+}
+
+function createStateChart(data) {
+    const ctx = document.getElementById('stateChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: data.map(d => d.location_state),
+            datasets: [{
+                data: data.map(d => d.capacity),
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.7)',
+                    'rgba(54, 162, 235, 0.7)',
+                    'rgba(255, 206, 86, 0.7)',
+                    'rgba(75, 192, 192, 0.7)',
+                    'rgba(153, 102, 255, 0.7)'
+                ]
+            }]
+        },
+        options: {
+            responsive: true
+        }
+    });
+}
+
+function createSourceChart(data) {
+    const ctx = document.getElementById('sourceChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: data.map(d => d.data_source),
+            datasets: [{
+                data: data.map(d => d.count),
+                backgroundColor: [
+                    'rgba(23, 162, 184, 0.7)',
+                    'rgba(40, 167, 69, 0.7)',
+                    'rgba(255, 193, 7, 0.7)'
+                ]
+            }]
+        },
+        options: {
+            responsive: true
+        }
+    });
+}
+
+function createOperatorChart(data) {
+    const ctx = document.getElementById('operatorChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'horizontalBar',
+        data: {
+            labels: data.map(d => d.operator_company),
+            datasets: [{
+                label: 'Total Capacity (MW)',
+                data: data.map(d => d.total_capacity_mw),
+                backgroundColor: 'rgba(255, 193, 7, 0.7)'
+            }]
+        },
+        options: {
+            responsive: true,
+            indexAxis: 'y',
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+}
+</script>
+{% endblock %}

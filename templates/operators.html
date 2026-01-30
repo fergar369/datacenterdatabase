@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Operators - DataCenter Intelligence{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="fas fa-building"></i> Data Center Operators
+            </h2>
+            <p class="lead text-muted">
+                Track the major players in the data center and bitcoin mining space
+            </p>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Operator Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Operator</th>
+                                    <th>Facilities</th>
+                                    <th>Total Capacity (MW)</th>
+                                    <th>Avg Capacity (MW)</th>
+                                    <th>First Seen</th>
+                                    <th>Last Seen</th>
+                                </tr>
+                            </thead>
+                            <tbody id="operatorsTable">
+                                <tr>
+                                    <td colspan="7" class="text-center">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    fetch('/api/operators')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const tbody = document.getElementById('operatorsTable');
+                tbody.innerHTML = '';
+
+                data.operators.forEach((operator, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td><strong>${operator.operator_company}</strong></td>
+                        <td>${operator.facility_count}</td>
+                        <td>${Math.round(operator.total_capacity_mw)}</td>
+                        <td>${Math.round(operator.avg_capacity_mw)}</td>
+                        <td>${operator.first_seen || 'N/A'}</td>
+                        <td>${operator.last_seen || 'N/A'}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error loading operators:', error);
+            document.getElementById('operatorsTable').innerHTML =
+                '<tr><td colspan="7" class="text-center text-danger">Error loading data</td></tr>';
+        });
+});
+</script>
+{% endblock %}

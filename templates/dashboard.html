@@ -1,0 +1,383 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - DataCenter Intelligence{% endblock %}
+
+{% block extra_css %}
+<style>
+#map {
+    height: 600px;
+    width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.filter-panel {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+.project-card {
+    transition: transform 0.2s;
+    cursor: pointer;
+}
+.project-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.confidence-badge {
+    font-size: 0.85rem;
+    padding: 4px 8px;
+}
+.verified-badge {
+    background: #28a745;
+    color: white;
+}
+.unverified-badge {
+    background: #ffc107;
+    color: #000;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="fas fa-map-marked-alt"></i> Interactive Dashboard
+                <button class="btn btn-sm btn-outline-secondary float-end" id="refreshMap">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+            </h2>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="row">
+        <div class="col-12">
+            <div class="filter-panel">
+                <h5 class="mb-3"><i class="fas fa-filter"></i> Filters</h5>
+                <div class="row g-3">
+                    <div class="col-md-2">
+                        <label class="form-label">State</label>
+                        <select class="form-select form-select-sm" id="filterState">
+                            <option value="">All States</option>
+                            <option value="TX">Texas (TX)</option>
+                            <option value="VA">Virginia (VA)</option>
+                            <option value="PA">Pennsylvania (PA)</option>
+                            <option value="OH">Ohio (OH)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Status</label>
+                        <select class="form-select form-select-sm" id="filterStatus">
+                            <option value="">All Status</option>
+                            <option value="Operational">Operational</option>
+                            <option value="Construction">Construction</option>
+                            <option value="Planned">Planned</option>
+                            <option value="Proposed">Proposed</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Min Capacity (MW)</label>
+                        <input type="number" class="form-control form-control-sm" id="filterMinCapacity" placeholder="0">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Operator</label>
+                        <input type="text" class="form-control form-control-sm" id="filterOperator" placeholder="Search...">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Verification</label>
+                        <select class="form-select form-select-sm" id="filterVerified">
+                            <option value="">All Projects</option>
+                            <option value="true" selected>Verified Only</option>
+                            <option value="false">Unverified</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button class="btn btn-primary btn-sm w-100" id="applyFilters">
+                            <i class="fas fa-search"></i> Apply
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Map -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div id="map"></div>
+        </div>
+    </div>
+
+    <!-- Projects List -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list"></i> Projects
+                        <span class="badge bg-light text-dark float-end" id="projectCount">0</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Project</th>
+                                    <th>Operator</th>
+                                    <th>Location</th>
+                                    <th>Capacity (MW)</th>
+                                    <th>Status</th>
+                                    <th>Confidence</th>
+                                    <th>Source</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="projectsTable">
+                                <tr>
+                                    <td colspan="8" class="text-center">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Project Detail Modal -->
+<div class="modal fade" id="projectModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="projectModalTitle">Project Details</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="projectModalBody">
+                <!-- Project details loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let map;
+let markersLayer;
+let allProjects = [];
+
+// Initialize map
+function initMap() {
+    map = L.map('map').setView([31.9686, -99.9018], 6); // Center on Texas
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    markersLayer = L.markerClusterGroup({
+        maxClusterRadius: 50,
+        spiderfyOnMaxZoom: true,
+        showCoverageOnHover: true,
+        zoomToBoundsOnClick: true
+    });
+
+    map.addLayer(markersLayer);
+}
+
+// Load projects and update map
+function loadProjects() {
+    const params = new URLSearchParams();
+
+    const state = document.getElementById('filterState').value;
+    const status = document.getElementById('filterStatus').value;
+    const minCapacity = document.getElementById('filterMinCapacity').value;
+    const operator = document.getElementById('filterOperator').value;
+    const verified = document.getElementById('filterVerified').value;
+
+    if (state) params.append('state', state);
+    if (status) params.append('status', status);
+    if (minCapacity) params.append('min_capacity', minCapacity);
+    if (operator) params.append('operator', operator);
+    if (verified) params.append('verified_only', verified);
+
+    fetch(`/api/projects?${params.toString()}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                allProjects = data.projects;
+                updateMap(allProjects);
+                updateTable(allProjects);
+                document.getElementById('projectCount').textContent = data.count;
+            }
+        })
+        .catch(error => console.error('Error loading projects:', error));
+}
+
+// Update map with projects
+function updateMap(projects) {
+    markersLayer.clearLayers();
+
+    projects.forEach(project => {
+        if (project.latitude && project.longitude) {
+            const markerColor = project.is_verified ? 'green' : 'orange';
+
+            const marker = L.circleMarker([project.latitude, project.longitude], {
+                radius: Math.log(project.capacity_mw + 1) * 3,
+                fillColor: markerColor,
+                color: '#fff',
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 0.7
+            });
+
+            const popupContent = `
+                <div class="p-2">
+                    <h6 class="mb-2">${project.project_name || 'Unnamed Project'}</h6>
+                    <p class="mb-1"><strong>Operator:</strong> ${project.operator_company || 'Unknown'}</p>
+                    <p class="mb-1"><strong>Capacity:</strong> ${project.capacity_mw} MW</p>
+                    <p class="mb-1"><strong>Status:</strong> ${project.status}</p>
+                    <p class="mb-1"><strong>Location:</strong> ${project.location_city}, ${project.location_state}</p>
+                    <p class="mb-2">
+                        <span class="badge ${project.is_verified ? 'bg-success' : 'bg-warning'}">
+                            Confidence: ${Math.round(project.confidence_score)}%
+                        </span>
+                    </p>
+                    <button class="btn btn-sm btn-primary" onclick="viewProject(${project.id})">
+                        View Details
+                    </button>
+                </div>
+            `;
+
+            marker.bindPopup(popupContent);
+            markersLayer.addLayer(marker);
+        }
+    });
+}
+
+// Update table with projects
+function updateTable(projects) {
+    const tbody = document.getElementById('projectsTable');
+    tbody.innerHTML = '';
+
+    if (projects.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">No projects found</td></tr>';
+        return;
+    }
+
+    projects.forEach(project => {
+        const row = document.createElement('tr');
+        row.className = 'project-card';
+        row.onclick = () => viewProject(project.id);
+
+        row.innerHTML = `
+            <td>${project.project_name || 'Unnamed'}</td>
+            <td>${project.operator_company || 'Unknown'}</td>
+            <td>${project.location_city}, ${project.location_state}</td>
+            <td>${project.capacity_mw}</td>
+            <td><span class="badge bg-secondary">${project.status}</span></td>
+            <td>
+                <span class="badge ${project.is_verified ? 'verified-badge' : 'unverified-badge'}">
+                    ${Math.round(project.confidence_score)}%
+                </span>
+            </td>
+            <td>${project.data_source}</td>
+            <td>${project.date_scraped_formatted || 'N/A'}</td>
+        `;
+
+        tbody.appendChild(row);
+    });
+}
+
+// View project details
+function viewProject(projectId) {
+    fetch(`/api/projects/${projectId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const project = data.project;
+                const modal = new bootstrap.Modal(document.getElementById('projectModal'));
+
+                document.getElementById('projectModalTitle').textContent = project.project_name || 'Project Details';
+
+                document.getElementById('projectModalBody').innerHTML = `
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Basic Information</h6>
+                            <table class="table table-sm">
+                                <tr><th>Operator:</th><td>${project.operator_company || 'Unknown'}</td></tr>
+                                <tr><th>Developer:</th><td>${project.developer_company || 'Unknown'}</td></tr>
+                                <tr><th>Capacity:</th><td>${project.capacity_mw} MW</td></tr>
+                                <tr><th>Status:</th><td>${project.status}</td></tr>
+                                <tr><th>Queue Position:</th><td>${project.queue_position || 'N/A'}</td></tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Location & Timeline</h6>
+                            <table class="table table-sm">
+                                <tr><th>City:</th><td>${project.location_city || 'Unknown'}</td></tr>
+                                <tr><th>County:</th><td>${project.location_county || 'Unknown'}</td></tr>
+                                <tr><th>State:</th><td>${project.location_state || 'Unknown'}</td></tr>
+                                <tr><th>Expected Online:</th><td>${project.expected_online_date_formatted || 'TBD'}</td></tr>
+                                <tr><th>Coordinates:</th><td>${project.latitude}, ${project.longitude}</td></tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <h6>Data Quality</h6>
+                            <table class="table table-sm">
+                                <tr>
+                                    <th>Confidence Score:</th>
+                                    <td>
+                                        <div class="progress">
+                                            <div class="progress-bar ${project.is_verified ? 'bg-success' : 'bg-warning'}"
+                                                 style="width: ${project.confidence_score}%">
+                                                ${Math.round(project.confidence_score)}%
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr><th>Data Source:</th><td>${project.data_source}</td></tr>
+                                <tr><th>Source URL:</th><td><a href="${project.source_url || '#'}" target="_blank">${project.source_url || 'N/A'}</a></td></tr>
+                                <tr><th>Match Reason:</th><td>${project.match_reason || 'N/A'}</td></tr>
+                                <tr><th>Date Scraped:</th><td>${project.date_scraped_formatted}</td></tr>
+                            </table>
+                        </div>
+                    </div>
+                    ${project.notes ? `
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <h6>Notes</h6>
+                            <p class="text-muted">${project.notes}</p>
+                        </div>
+                    </div>
+                    ` : ''}
+                `;
+
+                modal.show();
+            }
+        })
+        .catch(error => console.error('Error loading project:', error));
+}
+
+// Event listeners
+document.getElementById('applyFilters').addEventListener('click', loadProjects);
+document.getElementById('refreshMap').addEventListener('click', loadProjects);
+
+// Load projects on page load
+document.addEventListener('DOMContentLoaded', function() {
+    initMap();
+    loadProjects();
+});
+</script>
+{% endblock %}
