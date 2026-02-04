@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+
+{% block title %}DataCenter Intelligence Platform - Home{% endblock %}
+
+{% block content %}
+<div class="hero-section bg-primary text-white py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-7">
+                <h1 class="display-4 fw-bold mb-3">
+                    <i class="fas fa-shield-alt"></i> Verified Data Center Intelligence
+                </h1>
+                <p class="lead mb-4">
+                    Real-time tracking of natural gas-fired bitcoin mining and data center projects
+                    in Texas and beyond. No more ChatGPT-written LinkedIn spam - just verified,
+                    actionable intelligence from reputable sources.
+                </p>
+                <div class="d-flex gap-3">
+                    <a href="/dashboard" class="btn btn-light btn-lg">
+                        <i class="fas fa-map-marked-alt"></i> View Dashboard
+                    </a>
+                    <a href="/operators" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-building"></i> Browse Operators
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-5 text-center">
+                <div class="stats-box bg-white text-dark rounded p-4">
+                    <h3 class="mb-3">Live Statistics</h3>
+                    <div class="row" id="statsContainer">
+                        <div class="col-6 mb-3">
+                            <div class="stat-item">
+                                <h2 class="display-6 text-primary mb-0" id="totalProjects">-</h2>
+                                <small class="text-muted">Total Projects</small>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="stat-item">
+                                <h2 class="display-6 text-success mb-0" id="totalCapacity">-</h2>
+                                <small class="text-muted">MW Capacity</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stat-item">
+                                <h2 class="display-6 text-warning mb-0" id="recentProjects">-</h2>
+                                <small class="text-muted">New (30 days)</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stat-item">
+                                <h2 class="display-6 text-info mb-0" id="operatorCount">-</h2>
+                                <small class="text-muted">Operators</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container my-5">
+    <!-- Features Section -->
+    <div class="row mb-5">
+        <div class="col-12 text-center mb-4">
+            <h2 class="display-6 fw-bold">Why DataCenter Intelligence?</h2>
+            <p class="lead text-muted">Combat misinformation with verified, real-time data</p>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="feature-card card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    </div>
+                    <h4 class="card-title">Verified Sources Only</h4>
+                    <p class="card-text text-muted">
+                        Data directly from ERCOT, PJM interconnection queues, and regulatory filings.
+                        No social media speculation or marketing fluff.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="feature-card card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                        <i class="fas fa-bolt fa-2x"></i>
+                    </div>
+                    <h4 class="card-title">Near Real-Time Updates</h4>
+                    <p class="card-text text-muted">
+                        Automatic updates every 6 hours. Get notified when new projects are approved
+                        or existing projects change status.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="feature-card card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon bg-info text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                        <i class="fas fa-microscope fa-2x"></i>
+                    </div>
+                    <h4 class="card-title">Deep Analysis</h4>
+                    <p class="card-text text-muted">
+                        Equipment specifications, queue positions, timelines, and problem tracking.
+                        See what's real and what's not.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="feature-card card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon bg-warning text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                        <i class="fas fa-map-marked-alt fa-2x"></i>
+                    </div>
+                    <h4 class="card-title">Interactive Maps</h4>
+                    <p class="card-text text-muted">
+                        Visualize project locations, cluster analysis, and regional trends
+                        on interactive maps with detailed popups.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="feature-card card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon bg-danger text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                        <i class="fas fa-exclamation-triangle fa-2x"></i>
+                    </div>
+                    <h4 class="card-title">Problem Tracking</h4>
+                    <p class="card-text text-muted">
+                        Track issues and delays in the interconnection process. Learn from
+                        challenges encountered by other projects.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="feature-card card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon bg-secondary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                        <i class="fas fa-download fa-2x"></i>
+                    </div>
+                    <h4 class="card-title">Export Data</h4>
+                    <p class="card-text text-muted">
+                        Export to CSV, JSON, or GeoJSON for your own analysis.
+                        Integrate with your existing workflows.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Sources Section -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-5">
+                    <h3 class="card-title mb-4 text-center">
+                        <i class="fas fa-database"></i> Our Data Sources
+                    </h3>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5><i class="fas fa-check text-success"></i> ERCOT (Texas)</h5>
+                            <ul class="text-muted">
+                                <li>Generation Interconnection Queue</li>
+                                <li>Large Load Interconnection Queue</li>
+                                <li>Updated directly from ERCOT systems</li>
+                                <li>Queue positions and timeline data</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h5><i class="fas fa-check text-success"></i> PJM (Mid-Atlantic)</h5>
+                            <ul class="text-muted">
+                                <li>New Services Queue</li>
+                                <li>Covers VA, PA, OH, MD, and more</li>
+                                <li>Updated from official PJM reports</li>
+                                <li>Capacity and status tracking</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <p class="text-center text-muted mt-3 mb-0">
+                        <strong>Confidence Scoring:</strong> Each project receives a confidence score (0-100)
+                        based on data quality, source reliability, and verification status.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Call to Action -->
+    <div class="row mt-5">
+        <div class="col-12 text-center">
+            <div class="cta-box bg-light p-5 rounded">
+                <h3 class="mb-3">Ready to get started?</h3>
+                <p class="lead text-muted mb-4">
+                    Stop wasting time on unverified LinkedIn posts. Get real intelligence now.
+                </p>
+                <a href="/dashboard" class="btn btn-primary btn-lg">
+                    <i class="fas fa-rocket"></i> Launch Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Load statistics on page load
+document.addEventListener('DOMContentLoaded', function() {
+    fetch('/api/statistics')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const stats = data.statistics;
+                document.getElementById('totalProjects').textContent = stats.total_projects;
+                document.getElementById('totalCapacity').textContent = Math.round(stats.total_capacity_mw);
+                document.getElementById('recentProjects').textContent = stats.recent_projects_30_days;
+
+                // Count unique operators
+                fetch('/api/operators')
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('operatorCount').textContent = data.count;
+                    });
+            }
+        })
+        .catch(error => console.error('Error loading statistics:', error));
+});
+</script>
+{% endblock %}
